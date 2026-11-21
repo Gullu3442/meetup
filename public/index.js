@@ -1,19 +1,24 @@
-let VIDEO_STREAM_CONSTANT = { video: true };
+const video = document.querySelector('#user_video');
+const cameraStatus = document.querySelector('#camera_status');
 
-function getVideoStream() {
-    navigator.getUserMedia(VIDEO_STREAM_CONSTANT, onstreamProvided, onstreamError);
+function setCameraStatus(message) {
+    cameraStatus.textContent = message;
 }
 
-function onstreamProvided(stream) {
-    console.log("stream provided");
-    let video_object = document.querySelector("#user_video");
-    video_object.srcObject = stream;
+async function startCamera() {
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        setCameraStatus('Camera access requires a modern browser and a secure connection (HTTPS or localhost).');
+        return;
+    }
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+        setCameraStatus('Camera preview is ready.');
+    } catch (error) {
+        console.error('Camera access failed:', error);
+        setCameraStatus('Unable to start camera. Check your browser permissions and try again.');
+    }
 }
 
-
-function onstreamError(err) {
-    console.error("Stream Error", err);
-}
-
-
-getVideoStream();
+startCamera();
